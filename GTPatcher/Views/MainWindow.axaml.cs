@@ -92,10 +92,6 @@ namespace GTPatcher.Views
                 LoadUsername();
                 //LoadDarkMode();
             }
-            else
-            {
-                ShowMessageBox("Gorilla Tag Patcher Launcher", "You are not in windows, your settings wont save!");
-            }
 
             //ApplyTheme(DarkModeCheckBox.IsChecked == true);
 
@@ -127,6 +123,11 @@ namespace GTPatcher.Views
                 manifestIdLabel.Text = string.IsNullOrEmpty(selectedBuild.ManifestId.ToString()) ? "No Steam manifest for this build" : selectedBuild.ManifestId.ToString();
                 descriptionLabel.Text = string.IsNullOrEmpty(selectedBuild.PatchDescription) ? "No description for this patch" : selectedBuild.PatchDescription;
             }
+            
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                ShowMessageBox("Hello there, fellow penguin!", "I see you're on Linux.\nA few things to note:\n- Saving configuration doesn't work yet\n- Running this application from a terminal is REQUIRED to type your Steam password into DepotDownloader\nGood luck! :3");
+            }
         }
 
 
@@ -157,6 +158,7 @@ namespace GTPatcher.Views
 
         private void SaveRegistry(string path, string registryValue)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
             Registry.SetValue(RegistryKeyPath, registryValue, path.ToString());
         }
 
@@ -240,7 +242,7 @@ namespace GTPatcher.Views
                 return;
             }
 
-            var specificBuildPath = $"{PathTextBox.Text}\\{selectedBuild.PatchShorthand}";
+            var specificBuildPath = $"{PathTextBox.Text}/{selectedBuild.PatchShorthand}";
             if (!Directory.Exists(specificBuildPath))
             {
                 Directory.CreateDirectory(specificBuildPath);
@@ -250,10 +252,18 @@ namespace GTPatcher.Views
                     Directory.Delete(specificBuildPath, true);
                     return;
                 }
-                PatchAssembly(selectedBuild, $"{specificBuildPath}\\Gorilla Tag_Data\\Managed");
+                PatchAssembly(selectedBuild, $"{specificBuildPath}/Gorilla Tag_Data/Managed");
             }
-            if (File.Exists($"{specificBuildPath}\\Gorilla Tag.exe"))
-                Process.Start($"{specificBuildPath}\\Gorilla Tag.exe");
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                if (File.Exists($"{specificBuildPath}/Gorilla Tag.exe"))
+                    Process.Start($"{specificBuildPath}/Gorilla Tag.exe");
+            }
+            else
+            {
+                ShowMessageBox("Manual action required", "Linux builds of the launcher will not auto-start the game due to complexities with Wine/Proton.\nPlease add the build as a non-Steam game in your Steam library, and run it under Proton.");
+            }
         }
 
         private int InstallGame(Patch selectedBuild, string installPath)
@@ -268,17 +278,17 @@ namespace GTPatcher.Views
 
         private async void PatchAssembly(Patch selectedBuild, string managedPath)
         {
-            File.Move($"{managedPath}\\Assembly-CSharp.dll", $"{managedPath}\\Assembly-CSharp.bak");
+            File.Move($"{managedPath}/Assembly-CSharp.dll", $"{managedPath}/Assembly-CSharp.bak");
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
 
-            using var input = new FileStream($"{managedPath}\\Assembly-CSharp.bak", FileMode.Open);
-            var file = File.Create($"{managedPath}\\patch.xdelta");
+            using var input = new FileStream($"{managedPath}/Assembly-CSharp.bak", FileMode.Open);
+            var file = File.Create($"{managedPath}/patch.xdelta");
             var stream = await client.GetStreamAsync(selectedBuild.PatchLink);
             stream.CopyTo(file);
             file.Close();
-            using var patch = new FileStream($"{managedPath}\\patch.xdelta", FileMode.Open);
-            using var output = new FileStream($"{managedPath}\\Assembly-CSharp.dll", FileMode.Create);
+            using var patch = new FileStream($"{managedPath}/patch.xdelta", FileMode.Open);
+            using var output = new FileStream($"{managedPath}/Assembly-CSharp.dll", FileMode.Create);
 
             using var decoder = new PleOps.XdeltaSharp.Decoder.Decoder(input, patch, output);
 

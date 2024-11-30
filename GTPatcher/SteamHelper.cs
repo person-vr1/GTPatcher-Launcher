@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using static Constants;
 
 namespace GTPatcher_Launcher.Utilities
@@ -9,15 +10,33 @@ namespace GTPatcher_Launcher.Utilities
         {
             if (isBeta)
             {
-                var proc = Process.Start("DepotDownloader.exe", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -beta beta -username {steamUsername} -remember-password -dir \"{directory}\"");
-                proc.WaitForExit();
-                return proc.ExitCode;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var proc = Process.Start("DepotDownloader.exe", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -beta beta -username {steamUsername} -remember-password -dir \"{directory}\"");
+                    proc.WaitForExit();
+                    return proc.ExitCode;
+                }
+                else
+                {
+                    var proc = Process.Start("DepotDownloader", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -beta beta -username {steamUsername} -remember-password -dir \"{directory}\"");
+                    proc.WaitForExit();
+                    return proc.ExitCode;
+                }
             }
             else
             {
-                var proc = Process.Start("DepotDownloader.exe", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -username {steamUsername} -remember-password -dir \"{directory}\"");
-                proc.WaitForExit();
-                return proc.ExitCode;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var proc = Process.Start("DepotDownloader.exe", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -username {steamUsername} -remember-password -dir \"{directory}\"");
+                    proc.WaitForExit();
+                    return proc.ExitCode;
+                }
+                else
+                {
+                    var proc = Process.Start("DepotDownloader", $"-app {APP_ID} -depot {DEPOT_ID} -manifest {manifestId.ToString()} -username {steamUsername} -remember-password -dir \"{directory}\"");
+                    proc.WaitForExit();
+                    return proc.ExitCode;
+                }                
             }
         }
     }
