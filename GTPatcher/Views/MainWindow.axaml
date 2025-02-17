@@ -58,6 +58,27 @@
 				</StackPanel>
 			</TabItem>
 
+			<!-- Mod Manager Tab -->
+			<TabItem Header="Mod Manager" x:Name="ModManagerTab">
+				<Grid>
+					<ScrollViewer VerticalScrollBarVisibility="Auto">
+						<StackPanel Margin="10">
+
+							<TextBlock Text="Core" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5"/>
+							
+							<CheckBox Name="BepInEx" Checked="Mod_Checked" Unchecked="Mod_Unchecked">BepInEx</CheckBox>
+							
+							<TextBlock Text="Utilities" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5"/>
+							
+							<CheckBox Name="NoMoreOVR" Checked="Mod_Checked" Unchecked="Mod_Unchecked">NoMoreOVR</CheckBox>
+						</StackPanel>
+					</ScrollViewer>
+
+					<!-- i hate how the text is offcentered-->
+					<Button Content="Install/Update" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="120" Height="35" Margin="10" Click="InstallUpdateButton_Click"/>
+				</Grid>
+			</TabItem>
+
 			<!-- Info Tab -->
 			<TabItem Header="Info" x:Name="InfoTab">
 				<StackPanel Margin="10">

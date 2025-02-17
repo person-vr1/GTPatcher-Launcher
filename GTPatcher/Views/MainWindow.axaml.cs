@@ -93,7 +93,7 @@ namespace GTPatcher.Views
                 //LoadDarkMode();
             }
 
-            //ApplyTheme(DarkModeCheckBox.IsChecked == true);
+            // ApplyTheme(false);
 
             LoadBuilds();
 
@@ -312,6 +312,33 @@ namespace GTPatcher.Views
                     SaveRegistry(selectedPath, RegistriesValueName[0]);
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        List<string> modsChecked = new() { };
+
+        private void Mod_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = (CheckBox)sender;
+
+            if (!modsChecked.Contains(checkBox.Name))
+                modsChecked.Add(checkBox.Name);
+
+            Console.WriteLine($"Checkbox {checkBox.Name} is checked");
+        }
+
+        private void Mod_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = (CheckBox)sender;
+
+            if (modsChecked.Contains(checkBox.Name))
+                modsChecked.Remove(checkBox.Name);
+
+            Console.WriteLine($"Checkbox {checkBox.Name} is unchecked");
+        }
+
+        private void InstallUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
